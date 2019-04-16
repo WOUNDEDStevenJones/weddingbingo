@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>I Fink I want to play Bingo</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+	<style>
+		.space {
+			border: 1px black solid;
+			width: 18%;
+			height: 100px;
+			display: inline-block;
+			text-align: center;
+			margin: 0;
+			padding: 0;
+		}
+		.space p {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.space.completed, .space.free {
+			background-color: #00ffe7;
+		}
+		button {
+			width: 200px;
+			height: 100px;
+			font-size: 22px;
+		}
+	</style>
+</head>
+<body>
+
+<div id="board"></div>
+
+<script>
+	function shuffle(array) {
+		var currentIndex = array.length, temporaryValue, randomIndex;
+
+		// While there remain elements to shuffle...
+		while (0 !== currentIndex) {
+
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		// And swap it with the current element.
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+		}
+
+		return array;
+	}
+
+	function findGetParameter(parameterName) {
+		var result = null,
+			tmp = [];
+		location.search
+			.substr(1)
+			.split("&")
+			.forEach(function (item) {
+				tmp = item.split("=");
+				if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+			});
+		return result;
+	}
+
+	$(function() {
+		var s = [
+			'Bride happy cries',
+			'Groom happy cries',
+			'Groomsman takes off shirt',
+			'"Love is patient, love is kind"',
+			'Overly drunk member of wedding party',
+			'Shattered glass',
+			'Jump Around',
+			'Chicken Dance',
+			'Cupid Shuffle',
+			'Electric Slide',
+			'Cha Cha',
+			'Best man mentions prior relationship',
+			'Fan Programs',
+			'A unity thing',
+			'Champagne toast',
+			'Speech longer than 5 minutes',
+			'Bride keeps her last name',
+			'Cake in face',
+			'Signature drink',
+			'Strapless dress',
+			'Groom wears bow tie',
+			'Bouquet toss',
+			'Garder toss',
+			'Hashtag',
+		];
+
+		shuffle(s);
+		s[24] = s[12];
+		s[12] = 'Free space';
+
+		var json = JSON.stringify(s);
+
+		card = findGetParameter('card');
+		if (!card) {
+			window.location.replace('https://swierczek.github.io/index.html?card='+json);
+			console.log(json);
+		} else {
+			s = JSON.parse(card);
+		}
+
+		for(i=0; i<25; i++) {
+			$('#board').after('<div class="space" id="space-'+i+'"><p>'+s[i]+'</p></div>');
+		}
+	});
+</script>
+
+	<br>
+	<br>
+	<br>
+	<form action="/index.html">
+		<button>Get new card</button>
+	</form>
+
+	<script>
+		$(function() {
+			$('.space').on('click', function() {
+				$(this).toggleClass('completed');
+
+				checkWinner();
+			});
+
+			$('.space:nth-of-type(14)').addClass('free');
+
+			var checkWinner = function() {
+
+			}
+		});
+	</script>
+</body>
+</html>
