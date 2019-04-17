@@ -93,6 +93,7 @@
 			'Bouquet toss',
 			'Garter toss',
 			'Hashtag',
+			'The Wobble',
 		];
 
 		shuffle(s);
@@ -103,14 +104,16 @@
 
 		card = findGetParameter('card');
 		if (!card) {
-			window.location.replace('https://swierczek.github.io/weddingbingo/index.html?card='+json);
+			window.location.replace('index.html?card='+json);
 			console.log(json);
 		} else {
 			s = JSON.parse(card);
 		}
 
+		var board = $('#board');
 		for(i=0; i<25; i++) {
-			$('#board').after('<div class="space" id="space-'+i+'"><p>'+s[i]+'</p></div>');
+			var html = '<div class="space" id="space-'+i+'"><p>'+s[i]+'</p></div>';
+			board.append(html);
 		}
 	});
 </script>
@@ -118,24 +121,89 @@
 	<br>
 	<br>
 	<br>
-	<form action="https://swierczek.github.io/weddingbingo/index.html">
+	<form action="index.html">
 		<button>Get new card</button>
 	</form>
 
 	<script>
 		$(function() {
-			$('.space').on('click', function() {
-				$(this).toggleClass('completed');
+			//mark the free space
+			$('.space:nth-of-type(13)').addClass('completed').addClass('free_space');
 
-				checkWinner();
+			//clicked on a space
+			$('.space').on('click', function() {
+				if (!$(this).hasClass('free_space')) {
+					$(this).toggleClass('completed');
+
+					if ($(this).hasClass('completed')) {
+						checkWinner();
+					}
+
+					setLocalStorage($(this));
+				}
 			});
 
-			$('.space:nth-of-type(14)').addClass('free');
+			//reset localStorage items when getting a new card
+			$('form').on('submit', function() {
+				//reset cookies
+				localStorage.clear();
+			});
 
-			var checkWinner = function() {
 
+
+			//on page load, reassign completed items from localStorage
+			for(i=0; i<25; i++) {
+				var completed = localStorage.getItem('space-'+i);
+				if (completed) {
+					$('#space-'+i).addClass('completed');
+				}
 			}
+			checkWinner();
 		});
+
+		var checkWinner = function() {
+			winnerCount =
+				($("#space-0.completed, #space-1.completed, #space-2.completed, #space-3.completed, #space-4.completed").length == 5 ? 1 : 0) +
+				($("#space-5.completed, #space-6.completed, #space-7.completed, #space-8.completed, #space-9.completed").length == 5 ? 1 : 0) +
+				($("#space-10.completed, #space-11.completed, #space-12.completed, #space-13.completed, #space-14.completed").length == 5 ? 1 : 0) +
+				($("#space-15.completed, #space-16.completed, #space-17.completed, #space-18.completed, #space-19.completed").length == 5 ? 1 : 0) +
+				($("#space-20.completed, #space-21.completed, #space-22.completed, #space-23.completed, #space-24.completed").length == 5 ? 1 : 0) +
+
+				//rows top to bottom
+				($("#space-0.completed, #space-5.completed, #space-10.completed, #space-15.completed, #space-20.completed").length == 5 ? 1 : 0) +
+				($("#space-1.completed, #space-6.completed, #space-11.completed, #space-16.completed, #space-21.completed").length == 5 ? 1 : 0) +
+				($("#space-2.completed, #space-7.completed, #space-12.completed, #space-17.completed, #space-22.completed").length == 5 ? 1 : 0) +
+				($("#space-3.completed, #space-8.completed, #space-13.completed, #space-18.completed, #space-23.completed").length == 5 ? 1 : 0) +
+				($("#space-4.completed, #space-9.completed, #space-14.completed, #space-19.completed, #space-24.completed").length == 5 ? 1 : 0) +
+
+				//X
+				($("#space-0.completed, #space-6.completed, #space-12.completed, #space-18.completed, #space-24.completed").length == 5 ? 1 : 0) +
+				($("#space-4.completed, #space-8.completed, #space-12.completed, #space-16.completed, #space-20.completed").length == 5 ? 1 : 0) +
+			0; //so all the above lines all end in "+"
+
+			if (winnerCount > 0) {
+				if (winnerCount == 1) {
+					message = "Winner! You're clearly the most skilled bingo player at this wedding!";
+				} else if (winnerCount == 2) {
+					message = "Winner again! You crushed it!";
+				} else if (winnerCount == 3) {
+					message = "OK we get it, you won. Chill out and go enjoy the wedding!";
+				} else {
+					message = "Now you're just showing off! (But at least everybody else is super jealous of you!)";
+				}
+				setTimeout(function(){ alert(message); }, 100); //allow some time for the CSS class to be applied
+			}
+		}
+
+		var setLocalStorage = function(item) {
+			var id = $(item).attr('id');
+
+			if ($(item).hasClass('completed')) {
+				localStorage.setItem(id, true);
+			} else {
+				localStorage.removeItem(id);
+			}
+		}
 	</script>
 </body>
 </html>
